@@ -3,7 +3,7 @@ import chai, { expect, assert } from 'chai';
 import { mount } from 'enzyme';
 import chaiEnzyme from 'chai-enzyme';
 import { afterEach } from 'mocha';
-import { createConnection, createMethod } from '~/util/rx-meteor.mock';
+import { createConnection, createMethod } from './mocks/rx-meteor';
 
 chai.use(chaiEnzyme());
 
