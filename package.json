@@ -5,7 +5,6 @@
   "browser": "client/main.js",
   "scripts": {
     "start": "meteor",
-    "cloud9": "meteor --port $IP:$PORT",
     "test": "mocha",
     "test:watch": "mocha --watch"
   },
