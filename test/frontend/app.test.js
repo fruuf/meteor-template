@@ -70,7 +70,7 @@ describe('<App />', () => {
   });
 
   it('deletes a todo', () => {
-    const textInput = wrapper.find('.todos #todo:1 .delete');
+    const textInput = wrapper.find('#todo:1 .delete');
     textInput.simulate('click');
     expect(deleteTodo.calledWith({ todoId: 'todo:1' })).to.equal(true);
   });

@@ -19,7 +19,7 @@ global.navigator = {
 };
 
 const proxyquireStrict = proxyquire.noCallThru();
-const globalRexExp = /^~\/(.+)$/;
+const globalRexExp = /^~?\/(.+)$/;
 
 global.mockImport = (module, mocks = {}) => {
   const moduleGlobalPathMatch = module.match(globalRexExp);
