@@ -1,5 +1,7 @@
 /* eslint-disable react/no-multi-comp, no-unused-vars */
+import { Meteor } from '~/test/mocks/meteor';
 import { Observable } from 'rxjs/Observable';
+import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/observable/of';
 import 'rxjs/add/observable/combineLatest';
 import 'rxjs/add/observable/merge';
@@ -14,8 +16,10 @@ import 'rxjs/add/observable/empty';
 import zipObject from 'lodash/zipObject';
 import isObject from 'lodash/isObject';
 import isFunction from 'lodash/isFunction';
+import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
 import pick from 'lodash/pick';
+import sinon from 'sinon';
 
 const mockDataGenerators = {};
 
@@ -49,57 +53,45 @@ export const createAutorunStream = (getMeteorData, propsStream = Observable.of({
   .switchMap(props => Observable.create((observer) => observer.next(getMeteorData(props))))
   .cache(1);
 
-export const createConnection = (name, paramsList, ...parts) => ({
-  name,
-  paramsList,
-  reducer: compose(...parts, props => Object.keys(props).reduce((acc, cur) => (
-    Object.assign(acc, { [cur]: props[cur] || undefined })
-  ), {})),
-});
+export const createConnection = (paramsList, ...parts) => {
+  const reducerSubject = new Subject();
 
-const createSubscriptionStream = (name, paramsList, propsStream = Observable.of({})) => Observable.of({ ready: true });
+  const cleanOutputProps = props => Object.keys(props).reduce(
+    (acc, cur) => Object.assign(acc, { [cur]: props[cur] || undefined }),
+    {}
+  );
+  const reducerStream = reducerSubject.startWith(compose(...parts, cleanOutputProps));
+  const connection = {
+    paramsList,
+    reducerStream,
+  };
+  const update = (...updatedParts) => {
+    reducerSubject.next(compose(...updatedParts, cleanOutputProps));
+  };
 
-export const createConnectionStream = (connection, propsStream = Observable.of({})) => Observable.combineLatest(
-  createSubscriptionStream(connection.name, connection.paramsList, propsStream),
-  createAutorunStream(
-    props => mockDataGenerators[connection.name](
-      Object.assign({ user: Meteor.user(), userId: Meteor.userId() }, props)
-    ),
-    propsStream,
-    connection.paramsList
-  ),
-  (subscriptionProps, connectionProps) => Object.assign(
-    {},
-    connectionProps,
-    subscriptionProps
-  )
-);
+  return Object.assign(connection, { update });
+};
+
+export const createConnectionStream = (connection, propsStream = Observable.of({})) => {
+  const cleanPropsStream = pickStream(propsStream, connection.paramsList);
+  const connectionStream = Observable.combineLatest(propsStream, connection.reducerStream)
+    .map(([props, reducer]) => Object.assign(reducer(props), { ready: true }));
+  return connectionStream;
+};
 
 export const publishConnection = (connection) => {
 
 };
 
-export const createMethod = (name, paramsList, ...parts) => {
-  const reducer = compose(...parts);
-  const method = (...params) => {
-    const userId = undefined;
-    const user = false;
-    const props = Object.assign(zipObject(paramsList, params), { userId, user });
-    return reducer(props);
-  };
 
-  return (props) => Observable.create(observer => {
-    const params = paramsList.map(paramName => props[paramName]);
+export const createMethod = (...parts) => {
+  const method = compose(...parts);
+  const observableMethod = props => Observable.create(observer => {
     try {
-      const result = method(...params);
-      observer.next(result);
-      observer.complete();
-    } catch (e) {
+      observer.next(method(props));
+    } finally {
       observer.complete();
     }
   });
-};
-
-export const fakeConnection = (name, createMockData) => {
-  mockDataGenerators[name] = createMockData;
+  return sinon.spy(observableMethod);
 };

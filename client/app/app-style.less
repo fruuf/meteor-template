@@ -1,0 +1,38 @@
+@color-primary: #50C5B7;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  box-sizing: border-box;
+  font-size: 16px;
+  line-height: 1.8em;
+}
+.container {
+  width: 500px;
+  margin: 0 auto;
+  .post {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: stretch;
+    .text {
+      display: block;
+      flex: 1 1 auto;
+      line-height: 40px;
+      font-family: sans-serif;
+      font-size: 16px;
+      border: solid 1px @color-primary;
+      border-radius: 10px 0 0 10px;
+      padding: 0 20px;
+    }
+    .add-todo {
+      flex: 0 0 auto;
+      background-color: @color-primary;
+      border: none;
+      padding: 0 20px;
+      font-family: sans-serif;
+      font-size: 16px;
+      color: white;
+      border-radius: 0 10px 10px 0;
+    }
+  }
+}

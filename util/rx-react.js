@@ -8,6 +8,8 @@ import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/cache';
 import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/retry';
+import 'rxjs/add/operator/startWith';
+import 'rxjs/add/operator/filter';
 import isFunction from 'lodash/isFunction';
 import isArray from 'lodash/isArray';
 import pick from 'lodash/pick';

@@ -4,9 +4,10 @@
   "main": "server/main.js",
   "browser": "client/main.js",
   "scripts": {
-    "start": "meteor --port $IP:$PORT",
-    "test": "mocha",
-    "test:watch": "mocha --watch"
+    "start": "meteor",
+    "cloud9": "meteor --port $IP:$PORT",
+    "mocha": "mocha",
+    "mocha:watch": "mocha --watch"
   },
   "dependencies": {
     "lodash": "^4.13.1",
@@ -19,7 +20,7 @@
     "babel-core": "^6.10.4",
     "babel-loader": "^6.2.4",
     "babel-preset-airbnb": "^2.0.0",
-    "babel-root-slash-import": "^1.1.0",
+    "babel-root-import": "^4.0.1",
     "chai": "^3.5.0",
     "chai-enzyme": "^0.5.0",
     "css-loader": "^0.23.0",
@@ -32,18 +33,19 @@
     "extract-text-webpack-plugin": "^0.9.1",
     "file-loader": "^0.8.5",
     "html-loader": "^0.4.3",
+    "ignore-styles": "^4.0.0",
     "jsdom": "^9.4.1",
     "json-loader": "^0.5.4",
+    "less": "^2.7.1",
+    "less-loader": "^2.2.3",
     "mocha": "^2.5.3",
-    "node-sass": "^3.8.0",
     "proxyquire": "^1.7.10",
     "react-hot-loader": "^3.0.0-beta.1",
-    "sass-loader": "^4.0.0",
     "sinon": "^1.17.4",
     "style-loader": "^0.13.0",
     "url-loader": "^0.5.7",
     "webpack": "^1.13.0",
-    "webpack-hot-middleware": "^2.10.0",
+    "webpack-hot-middleware": "^2.12.1",
     "webpack-validator": "^2.2.2"
   }
 }

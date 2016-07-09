@@ -4,10 +4,10 @@ const validator = require('webpack-validator');
 const config = {
   entry: [
     'react-hot-loader/patch',
-    './main'
+    './main',
   ],
   resolve: {
-    extensions: ['', '.js', '.json', '.scss'],
+    extensions: ['', '.js', '.json', '.less'],
   },
   module: {
     loaders: [
@@ -16,8 +16,8 @@ const config = {
         loader: 'babel',
         exclude: /node_modules/,
       }, {
-        test: /\.scss$/,
-        loaders: ['style', 'css', 'sass'],
+        test: /\.less$/,
+        loaders: ['style', 'css', 'less'],
       },
     ],
   },

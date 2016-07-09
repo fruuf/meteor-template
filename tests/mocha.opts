@@ -1,4 +1,0 @@
-tests/.setup.js
-tests/enzyme/**/*-test.js
---compilers js:babel-core/register
---recursive

@@ -1,4 +1,4 @@
 {
   "presets": ["airbnb"],
-  "plugins":["react-hot-loader/babel", "babel-root-slash-import"]
+  "plugins":["react-hot-loader/babel", "babel-root-import"]
 }
