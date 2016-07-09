@@ -1,0 +1,13 @@
+{
+  "env": {
+      "mocha": true
+  },
+  "globals": {
+    "hot": true,
+    "cold": true,
+    "flush": true,
+    "expectObservable": true,
+    "rootImport": true,
+    "rootImportDefault": true
+  }
+}
