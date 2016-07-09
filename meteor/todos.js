@@ -15,3 +15,11 @@ export const addTodo = createMethod(
     Todos.insert(data);
   }
 );
+
+export const deleteTodo = createMethod(
+  'deleteTodo',
+  ['todoId'],
+  ({ todoId }) => {
+    Todos.remove(todoId);
+  }
+);

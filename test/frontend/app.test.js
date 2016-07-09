@@ -9,9 +9,10 @@ const todosConnection = createConnection([], () => (
 ));
 
 const addTodo = createMethod(() => {});
+const deleteTodo = createMethod(() => {});
 
 const App = mockImportDefault('~/client/app', {
-  '~/meteor/todos': { todosConnection, addTodo },
+  '~/meteor/todos': { todosConnection, addTodo, deleteTodo },
 });
 
 describe('<App />', () => {
@@ -29,6 +30,14 @@ describe('<App />', () => {
     expect(wrapper.find('.welcome-back')).to.have.length(0);
   });
 
+  it('displays welcome message', () => {
+    todosConnection.update(() => ({
+      todos: [],
+      user: { name: 'test' },
+    }));
+    expect(wrapper.find('.welcome-back')).to.have.length(1);
+  });
+
   it('updates reactive', () => {
     todosConnection.update(() => ({
       todos: [
@@ -36,14 +45,6 @@ describe('<App />', () => {
       ],
     }));
     expect(wrapper.find('.todo')).to.have.length(1);
-  });
-
-  it('displays welcome message', () => {
-    todosConnection.update(() => ({
-      todos: [],
-      user: { name: 'test' },
-    }));
-    expect(wrapper.find('.welcome-back')).to.have.length(1);
   });
 
   it('updates post data', () => {
@@ -60,5 +61,17 @@ describe('<App />', () => {
 
   it('resets post after add', () => {
     expect(wrapper.find('form .text').get(0).value).to.equal('');
+  });
+
+  it('doesnt post when there is no message', () => {
+    addTodo.reset();
+    wrapper.find('.add-todo').simulate('click');
+    expect(addTodo.callCount).to.equal(0);
+  });
+
+  it('deletes a todo', () => {
+    const textInput = wrapper.find('.todos #todo:1 .delete');
+    textInput.simulate('click');
+    expect(deleteTodo.calledWith({ todoId: 'todo:1' })).to.equal(true);
   });
 });
