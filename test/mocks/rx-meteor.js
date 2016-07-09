@@ -1,5 +1,3 @@
-/* eslint-disable react/no-multi-comp, no-unused-vars */
-import { Meteor } from '~/test/mocks/meteor';
 import { Observable } from 'rxjs/Observable';
 import { Subject } from 'rxjs/Subject';
 import 'rxjs/add/observable/of';
@@ -13,21 +11,16 @@ import 'rxjs/add/operator/combineLatest';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/cache';
 import 'rxjs/add/observable/empty';
-import zipObject from 'lodash/zipObject';
 import isObject from 'lodash/isObject';
 import isFunction from 'lodash/isFunction';
-import isString from 'lodash/isString';
 import isArray from 'lodash/isArray';
 import pick from 'lodash/pick';
 import sinon from 'sinon';
-
-const mockDataGenerators = {};
 
 const shallowEqual = (objA, objB) =>
   Object.keys(objA).length === Object.keys(objB).length
   && Object.keys(objA).every(key => objA[key] === objB[key])
 ;
-
 
 const pickStream = (stream, propsList) => (
   isArray(propsList)
@@ -74,15 +67,11 @@ export const createConnection = (paramsList, ...parts) => {
 
 export const createConnectionStream = (connection, propsStream = Observable.of({})) => {
   const cleanPropsStream = pickStream(propsStream, connection.paramsList);
-  const connectionStream = Observable.combineLatest(propsStream, connection.reducerStream)
-    .map(([props, reducer]) => Object.assign(reducer(props), { ready: true }));
+  const connectionStream = Observable.combineLatest(cleanPropsStream, connection.reducerStream)
+    .map(([props, reducer]) => Object.assign(reducer(props), { ready: true }))
+    .cache(1);
   return connectionStream;
 };
-
-export const publishConnection = (connection) => {
-
-};
-
 
 export const createMethod = (...parts) => {
   const method = compose(...parts);

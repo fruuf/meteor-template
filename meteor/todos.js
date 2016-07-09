@@ -1,6 +1,6 @@
 import { Todos } from './collections';
 import { createConnection, createMethod } from '~/util/rx-meteor';
-import { find } from '~/util/relations';
+import { find } from '~/util/relation';
 
 export const todosConnection = createConnection(
   'todos-connection',
