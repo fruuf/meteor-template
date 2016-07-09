@@ -31,7 +31,7 @@ const TodosComponent = props => (
             />
             <div className="input-group-btn">
               <button
-                className="btn btn-primary add-todo"
+                className="btn btn-primary add"
                 onClick={e => { e.preventDefault(); props.dispatch('addTodo'); }}
                 type="submit"
               >add</button>

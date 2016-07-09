@@ -35,7 +35,9 @@ describe('<App />', () => {
       todos: [],
       user: { name: 'test' },
     }));
-    expect(wrapper.find('.welcome-back')).to.have.length(1);
+    const welcomeBack = wrapper.find('.welcome-back');
+    expect(welcomeBack).to.be.present();
+    expect(welcomeBack).to.include.text('test');
   });
 
   it('updates reactive', () => {
@@ -47,6 +49,10 @@ describe('<App />', () => {
     expect(wrapper.find('.todo')).to.have.length(1);
   });
 
+  it('has an input field', () => {
+    expect(wrapper.find('form .text')).to.be.present();
+  });
+
   it('updates post data', () => {
     const textInput = wrapper.find('form .text');
     textInput.get(0).value = 'foo';
@@ -54,8 +60,12 @@ describe('<App />', () => {
     expect(wrapper.find('form .text').get(0).value).to.equal('foo');
   });
 
+  it('has add todo button', () => {
+    expect(wrapper.find('form .add')).to.be.present();
+  });
+
   it('adds a todo', () => {
-    wrapper.find('.add-todo').simulate('click');
+    wrapper.find('.add').simulate('click');
     expect(addTodo.calledWith({ data: { text: 'foo' } })).to.equal(true);
   });
 
@@ -65,13 +75,17 @@ describe('<App />', () => {
 
   it('doesnt post when there is no message', () => {
     addTodo.reset();
-    wrapper.find('.add-todo').simulate('click');
+    wrapper.find('.add').simulate('click');
     expect(addTodo.callCount).to.equal(0);
   });
 
+  it('has a delete button', () => {
+    expect(wrapper.find('#todo:1 .delete')).to.be.present();
+  });
+
   it('deletes a todo', () => {
-    const textInput = wrapper.find('#todo:1 .delete');
-    textInput.simulate('click');
+    const deleteButton = wrapper.find('#todo:1 .delete');
+    deleteButton.simulate('click');
     expect(deleteTodo.calledWith({ todoId: 'todo:1' })).to.equal(true);
   });
 });
