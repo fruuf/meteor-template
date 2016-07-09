@@ -1,5 +1,5 @@
 /* eslint-disable global-require */
-import * as rxMeteorMock from '~/util/rx-meteor.mock';
+import * as rxMeteorMock from './rx-meteor';
 import * as meteorMock from './meteor';
 import * as mongoMock from './mongo';
 

@@ -6,8 +6,8 @@
   "scripts": {
     "start": "meteor",
     "cloud9": "meteor --port $IP:$PORT",
-    "mocha": "mocha",
-    "mocha:watch": "mocha --watch"
+    "test": "mocha",
+    "test:watch": "mocha --watch"
   },
   "dependencies": {
     "lodash": "^4.13.1",
