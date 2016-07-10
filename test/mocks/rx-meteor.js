@@ -46,7 +46,7 @@ export const createAutorunStream = (getMeteorData, propsStream = Observable.of({
   .switchMap(props => Observable.create((observer) => observer.next(getMeteorData(props))))
   .cache(1);
 
-export const createConnection = (paramsList, ...parts) => {
+export const createConnection = (...parts) => {
   const reducerSubject = new Subject();
 
   const cleanOutputProps = props => Object.keys(props).reduce(
@@ -55,7 +55,7 @@ export const createConnection = (paramsList, ...parts) => {
   );
   const reducerStream = reducerSubject.startWith(compose(...parts, cleanOutputProps));
   const connection = {
-    paramsList,
+    paramsList: false,
     reducerStream,
   };
   const update = (...updatedParts) => {

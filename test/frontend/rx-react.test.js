@@ -58,4 +58,19 @@ describe('util/rx-react', () => {
     wrapper.setProps({ counter: 2 });
     expect(wrapper.find(Component).props().doubleCounter).to.equal(4);
   });
+
+  it('unsubscribes on unmount', () => {
+    const finallyHandler = sinon.stub();
+    const cleanupHandler = sinon.stub();
+    const createState = (propsStream, actionStream, listen) => {
+      listen(propsStream.finally(finallyHandler));
+      return cleanupHandler;
+    };
+    const Container = connectComponent(Component, createState);
+    const wrapper = mount(<Container />);
+    expect(wrapper).to.be.present();
+    wrapper.unmount();
+    expect(finallyHandler.calledOnce).to.equal(true);
+    expect(cleanupHandler.calledOnce).to.equal(true);
+  });
 });

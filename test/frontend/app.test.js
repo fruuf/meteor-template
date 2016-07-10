@@ -1,6 +1,6 @@
 import React from 'react';
 
-const todosConnection = createConnection([], () => (
+const todosConnection = createConnection(() => (
   { todos: [
     { _id: 'todo:1', name: 'foo' },
     { _id: 'todo:2', name: 'bar' },

@@ -1,5 +1,6 @@
 import sinon from 'sinon';
 import { find, findOne, combine, relation } from '~/util/relation';
+
 describe('util/relation', () => {
   describe('relation', () => {
     it('accepts an id as direct prop', () => {
@@ -219,7 +220,7 @@ describe('util/relation', () => {
 
   const createFakeCollection = name => ({
     _name: name,
-    find: sinon.stub().returns({ fetch: () => ([{ _id: `${name}:1` }]) }),
+    find: sinon.stub().returns({ cursor: true, fetch: () => ([{ _id: `${name}:1` }]) }),
   });
 
 
@@ -361,6 +362,16 @@ describe('util/relation', () => {
       expect(newProps.bar).to.deep.equal(expectedProps.bar);
       expect(BarCollection.find.called).to.equal(false);
     });
+
+    it('saves its cursors on the collection name', () => {
+      const createQuery = { fooId: 'foo:1' };
+      const props = {
+        foo: { _id: 'foo:1' },
+      };
+      const newProps = findOne('bar', BarCollection, createQuery)(props);
+      // eslint-disable-next-line no-underscore-dangle
+      expect(newProps._cursors.bar).to.have.length(1);
+    });
   });
 
   describe('find', () => {
@@ -497,6 +508,16 @@ describe('util/relation', () => {
       const newProps = find('bar', BarCollection, createQuery, createOptions)(props);
       expect(newProps.bar).to.deep.equal(expectedProps.bar);
       expect(BarCollection.find.called).to.equal(false);
+    });
+
+    it('saves its cursors on the collection name', () => {
+      const createQuery = { fooId: 'foo:1' };
+      const props = {
+        foo: { _id: 'foo:1' },
+      };
+      const newProps = find('bar', BarCollection, createQuery)(props);
+      // eslint-disable-next-line no-underscore-dangle
+      expect(newProps._cursors.bar).to.have.length(1);
     });
   });
 });
