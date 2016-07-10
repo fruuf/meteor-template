@@ -10,6 +10,8 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/retry';
 import 'rxjs/add/operator/startWith';
 import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/share';
+
 import isFunction from 'lodash/isFunction';
 import isArray from 'lodash/isArray';
 import pick from 'lodash/pick';
@@ -45,7 +47,7 @@ export const connectComponent = (component, stateCreator, propsList = false) => 
         .mergeMap(stream => stream.retry(10));
       this.subscription = setStateStream.startWith({}).subscribe(this.setState.bind(this));
       const listen = listenStream.next.bind(listenStream);
-      this.cleanup = stateCreator(cleanPropsStream, this.actionStream, listen, this.dispatch);
+      this.cleanup = stateCreator(cleanPropsStream, this.actionStream.share(), listen, this.dispatch);
     }
 
     componentWillReceiveProps(nextProps) {

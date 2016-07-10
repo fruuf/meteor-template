@@ -33,6 +33,7 @@ const pickStream = (stream, propsList) => (
 
 
 export const compose = (...parts) => (props) => {
+  // zero parts provided, just return the current props and dont do anything
   if (parts.length === 0) return props;
   // otherwise call them in order with the current props or merge into the current props
   // if a part is an object
@@ -97,6 +98,7 @@ export const publishConnection = (connection) => {
       user: this.userId ? Meteor.users.findOne(this.userId) : false,
     });
     const connectedProps = connection.reducer(props);
+
     //eslint-disable-next-line
     const cursors = Object.keys(connectedProps._cursors || {}).map(collectionName => {
       //eslint-disable-next-line
@@ -104,7 +106,7 @@ export const publishConnection = (connection) => {
       return collectionCursors[collectionCursors.length - 1];
     });
     //eslint-disable-next-line
-    //console.log(`publish '${connection.name}' with ${cursors.length} cursors (${Object.keys(connectedProps._cursors || {})})`);
+    console.log(`publish '${connection.name}' with ${cursors.length} cursors (${Object.keys(connectedProps._cursors || {})})`);
     return cursors;
   });
 };

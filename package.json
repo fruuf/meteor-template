@@ -5,6 +5,7 @@
   "browser": "client/main.js",
   "scripts": {
     "start": "meteor",
+    "production": "meteor --production",
     "test": "mocha",
     "test:watch": "mocha --watch"
   },

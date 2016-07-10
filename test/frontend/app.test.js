@@ -22,7 +22,7 @@ describe('<App />', () => {
     expect(wrapper).to.be.present();
   });
 
-  it('has two items', () => {
+  it('renders items', () => {
     expect(wrapper.find('.todo')).to.have.length(2);
   });
 
