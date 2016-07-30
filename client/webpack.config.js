@@ -18,6 +18,9 @@ const config = {
       }, {
         test: /\.less$/,
         loaders: ['style', 'css', 'less'],
+      }, {
+        test: /\.(jpg|png|woff|ttf|eot|woff2|svg)$/,
+        loader: 'url?limit=25000',
       },
     ],
   },

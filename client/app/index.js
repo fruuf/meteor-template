@@ -34,7 +34,10 @@ const TodosComponent = props => (
                 className="btn btn-primary add"
                 onClick={e => { e.preventDefault(); props.dispatch('addTodo'); }}
                 type="submit"
-              >add</button>
+              >
+                <span className="glyphicon glyphicon-asterisk" />
+                add
+              </button>
             </div>
           </div>
         </form>
