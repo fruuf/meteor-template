@@ -16,7 +16,6 @@ import isFunction from 'lodash/isFunction';
 import isArray from 'lodash/isArray';
 import pick from 'lodash/pick';
 
-
 const shallowEqual = (objA, objB) =>
   Object.keys(objA).length === Object.keys(objB).length
   && Object.keys(objA).every(key => objA[key] === objB[key])
@@ -43,8 +42,7 @@ export const connectComponent = (component, stateCreator, propsList = false) => 
       };
       const cleanPropsStream = pickStream(this.propsStream.startWith(this.props || {}), propsList).cache(1);
       const listenStream = new Subject();
-      const setStateStream = listenStream
-        .mergeMap(stream => stream.retry(10));
+      const setStateStream = listenStream.mergeMap(stream => stream.retry(10));
       this.subscription = setStateStream.startWith({}).subscribe(this.setState.bind(this));
       const listen = listenStream.next.bind(listenStream);
       this.cleanup = stateCreator(cleanPropsStream, this.actionStream.share(), listen, this.dispatch);

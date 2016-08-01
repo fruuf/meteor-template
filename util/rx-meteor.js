@@ -46,8 +46,11 @@ export const compose = (...parts) => (props) => {
 
 export const createAutorunStream = (getMeteorData, propsStream = Observable.of({}), propsList = false) => {
   const observable = pickStream(propsStream, propsList).switchMap(props => Observable.create((observer) => {
-    const autorunHandler = Tracker.autorun(() => {
-      observer.next(getMeteorData(props));
+    let autorunHandler;
+    Tracker.nonreactive(() => {
+      autorunHandler = Tracker.autorun(() => {
+        observer.next(getMeteorData(props));
+      });
     });
     return () => {
       autorunHandler.stop();
@@ -59,35 +62,31 @@ export const createAutorunStream = (getMeteorData, propsStream = Observable.of({
 export const createConnection = (name, paramsList, ...parts) => ({
   name,
   paramsList,
-  reducer: compose(...parts, props => Object.keys(props).reduce((acc, cur) => (
-    cur === '_cursors' && !Meteor.isServer
-    ? acc
-    : Object.assign(acc, { [cur]: props[cur] || undefined })
-  ), {})),
+  reducer: compose(
+    ...parts,
+    props => Object.keys(props).reduce((acc, cur) => (
+      cur === '_cursors' && !Meteor.isServer
+      ? acc
+      : Object.assign(acc, { [cur]: props[cur] || undefined })
+    ), {})
+  ),
 });
 
-const createSubscriptionStream = (name, paramsList, propsStream = Observable.of({})) => {
-  const cleanPropsStream = pickStream(propsStream, paramsList);
-  const autorun = props => {
-    const params = paramsList.map(paramName => props[paramName]);
-    const subscription = Meteor.subscribe(name, ...params);
-    return { ready: subscription.ready() };
-  };
-  return createAutorunStream(autorun, cleanPropsStream);
-};
-
-export const createConnectionStream = (connection, propsStream = Observable.of({})) => Observable.combineLatest(
-  createSubscriptionStream(connection.name, connection.paramsList, propsStream),
-  createAutorunStream(
-    props => connection.reducer(Object.assign({ user: Meteor.user(), userId: Meteor.userId() }, props)),
-    propsStream,
-    connection.paramsList
+export const createConnectionStream = (connection, propsStream = Observable.of({})) => createAutorunStream(
+  compose(
+    props => {
+      const params = connection.paramsList.map(paramName => props[paramName]);
+      const subscription = Meteor.subscribe(connection.name, ...params);
+      return Object.assign({
+        user: Meteor.user(),
+        userId: Meteor.userId(),
+        ready: subscription.ready(),
+      }, props);
+    },
+    connection.reducer
   ),
-  (subscriptionProps, connectionProps) => Object.assign(
-    {},
-    connectionProps,
-    subscriptionProps
-  )
+  propsStream,
+  connection.paramsList
 );
 
 export const publishConnection = (connection) => {
@@ -98,7 +97,6 @@ export const publishConnection = (connection) => {
       user: this.userId ? Meteor.users.findOne(this.userId) : false,
     });
     const connectedProps = connection.reducer(props);
-
     //eslint-disable-next-line
     const cursors = Object.keys(connectedProps._cursors || {}).map(collectionName => {
       //eslint-disable-next-line
@@ -106,7 +104,7 @@ export const publishConnection = (connection) => {
       return collectionCursors[collectionCursors.length - 1];
     });
     //eslint-disable-next-line
-    console.log(`publish '${connection.name}' with ${cursors.length} cursors (${Object.keys(connectedProps._cursors || {})})`);
+    //console.log(`publish '${connection.name}' with ${cursors.length} cursors (${Object.keys(connectedProps._cursors || {})})`);
     return cursors;
   });
 };
@@ -131,4 +129,14 @@ export const createMethod = (name, paramsList, ...parts) => {
       }
     });
   });
+};
+
+export const createInlineMethod = (paramsList = [], ...parts) => {
+  const reducer = compose(...parts);
+  return (...params) => {
+    const userId = Meteor.userId();
+    const user = Meteor.user() || false;
+    const props = Object.assign(zipObject(paramsList, params), { userId, user });
+    return reducer(props);
+  };
 };

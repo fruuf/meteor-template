@@ -44,8 +44,8 @@ export const findOne = (key, collection, query, options = {}) => (props) => {
     const cursor = collection.find(queryObject, optionsObject);
     // eslint-disable-next-line
     props._cursors[collection._name].push(cursor);
-    const [document] = cursor.fetch();
-    return Object.assign(props, { [key]: document || false });
+    const [doc] = cursor.fetch();
+    return Object.assign(props, { [key]: doc || false });
   }
   return Object.assign(props, { [key]: false });
 };
@@ -103,3 +103,17 @@ export const relation = (field, subject, identifier = false) => (props) => {
   }
   return false;
 };
+
+export const merge = (...relations) => (props) => {
+  const $or = relations.map(mapRelation => {
+    let queryObject = mapRelation;
+    if (isFunction(queryObject)) queryObject = queryObject(props);
+    if (!isObject(queryObject)) return false;
+    return queryObject;
+  });
+  if ($or.some(part => !part)) return false;
+  return { $or };
+};
+
+export const optionalRelation = (field, subject, identifier = false) => (props) =>
+  relation(field, subject, identifier)(props) || {};

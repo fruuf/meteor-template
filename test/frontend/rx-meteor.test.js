@@ -6,7 +6,11 @@ const autorun = sinon.spy(autorunCallback => {
   autorunCallback();
   return { stop };
 });
-const Tracker = { autorun };
+const nonreactive = sinon.spy(autorunCallback => {
+  autorunCallback();
+  return undefined;
+});
+const Tracker = { autorun, nonreactive };
 
 const isServer = false;
 const isClient = true;

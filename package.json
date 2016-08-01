@@ -1,5 +1,5 @@
 {
-  "name": "poker",
+  "name": "meteor template",
   "private": true,
   "main": "server/main.js",
   "browser": "client/main.js",

@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { find, findOne, combine, relation } from '~/util/relation';
+import { find, findOne, combine, relation, merge, optionalRelation } from '~/util/relation';
 
 describe('util/relation', () => {
   describe('relation', () => {
@@ -120,6 +120,104 @@ describe('util/relation', () => {
     });
   });
 
+  describe('optionalRelation', () => {
+    it('behaves like relation', () => {
+      let createQuery = optionalRelation('_id', 'fooId');
+      let props = {
+        fooId: 'foo:1',
+      };
+      let expectedQuery = {
+        _id: 'foo:1',
+      };
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+
+      createQuery = optionalRelation('_id', 'fooIds');
+      props = {
+        fooIds: ['foo:1', 'foo:2'],
+      };
+      expectedQuery = {
+        _id: { $in: ['foo:1', 'foo:2'] },
+      };
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+
+      createQuery = optionalRelation('_id', 'foo', 'barId');
+      props = {
+        foo: { _id: 'foo:1', barId: 'bar:1' },
+      };
+      expectedQuery = {
+        _id: 'bar:1',
+      };
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+
+      createQuery = optionalRelation('_id', 'foo', 'barIds');
+      props = {
+        foo: { _id: 'foo:1', barIds: ['bar:1', 'bar:2'] },
+      };
+      expectedQuery = {
+        _id: { $in: ['bar:1', 'bar:2'] },
+      };
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+
+      createQuery = optionalRelation('_id', 'foos', 'barId');
+      props = {
+        foos: [{ _id: 'foo:1', barId: 'bar:1' }, { _id: 'foo:2', barId: 'bar:2' }],
+      };
+      expectedQuery = {
+        _id: { $in: ['bar:1', 'bar:2'] },
+      };
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+
+      createQuery = optionalRelation('_id', 'foos', 'barIds');
+      props = {
+        foos: [{ _id: 'foo:1', barIds: ['bar:1', 'bar:2'] }, { _id: 'foo:2', barIds: ['bar:3', 'bar:4'] }],
+      };
+      expectedQuery = {
+        _id: { $in: ['bar:1', 'bar:2', 'bar:3', 'bar:4'] },
+      };
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+
+      createQuery = optionalRelation('_id', 'foos', 'barId');
+      props = {
+        foos: [{ _id: 'foo:1' }, { _id: 'foo:2', barId: 'bar:1' }],
+      };
+      expectedQuery = {
+        _id: { $in: ['bar:1'] },
+      };
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+    });
+
+    it('returns empty query', () => {
+      let createQuery = optionalRelation('_id', 'fooId');
+      let props = {}; // no fooId !
+      let expectedQuery = {};
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+
+      createQuery = optionalRelation('_id', 'foo', 'barId');
+      props = {}; // no foo !
+      expectedQuery = {};
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+
+      createQuery = optionalRelation('_id', 'foo', 'barId');
+      props = { foo: { _id: 'foo:1' } }; // no barId !
+      expectedQuery = {};
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+
+      createQuery = optionalRelation('_id', 'foos', 'barId');
+      props = {
+        foos: [{ _id: 'foo:1' }, { _id: 'foo:2' }],
+      };
+      expectedQuery = {};
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+
+      createQuery = optionalRelation('_id', 'foos', 'barId');
+      props = {
+        foos: [],
+      };
+      expectedQuery = {};
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+    });
+  });
+
   describe('combine', () => {
     it('combines relations', () => {
       const createQuery = combine(
@@ -215,6 +313,105 @@ describe('util/relation', () => {
         foo: { _id: 'foo:1' },
       };
       expect(() => createQuery(props)).to.throw(/conflict/);
+    });
+  });
+
+  describe('merge', () => {
+    it('merges relations', () => {
+      const createQuery = merge(
+        relation('fooId', 'foo', '_id'),
+        relation('barId', 'bar', '_id')
+      );
+      const props = {
+        foo: { _id: 'foo:1' },
+        bar: { _id: 'bar:1' },
+      };
+      const expectedQuery = {
+        $or: [
+          { fooId: 'foo:1' },
+          { barId: 'bar:1' },
+        ],
+      };
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+    });
+
+    it('merges relations and query objects', () => {
+      const createQuery = merge(
+        relation('fooId', 'foo', '_id'),
+        { barId: 'bar:1' }
+      );
+      const props = {
+        foo: { _id: 'foo:1' },
+      };
+      const expectedQuery = {
+        $or: [
+          { fooId: 'foo:1' },
+          { barId: 'bar:1' },
+        ],
+      };
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+    });
+
+    it('accepts any props => query function', () => {
+      const createQuery = merge(
+        relation('fooId', 'foo', '_id'),
+        props => ({ rating: { $gte: props.rating } })
+      );
+      const props = {
+        foo: { _id: 'foo:1' },
+        rating: 5,
+      };
+      const expectedQuery = {
+        $or: [
+          { fooId: 'foo:1' },
+          { rating: { $gte: 5 } },
+        ],
+      };
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+    });
+
+    it('returns false if one relation returns false', () => {
+      const createQuery = merge(
+        relation('fooId', 'foo', '_id'),
+        relation('barId', 'bar', '_id')
+      );
+      const props = {
+        // no bar
+        foo: { _id: 'foo:1' },
+      };
+      const expectedQuery = false;
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+    });
+
+    it('returns false if string is passed', () => {
+      const createQuery = merge(
+        relation('fooId', 'foo', '_id'),
+        'bar:2'
+      );
+      const props = {
+        // no bar
+        foo: { _id: 'foo:1' },
+      };
+      const expectedQuery = false;
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
+    });
+
+    it('allows merge on the same field', () => {
+      const createQuery = merge(
+        relation('fooId', 'foo', '_id'),
+        relation('fooId', 'bar', 'fooId')
+      );
+      const props = {
+        foo: { _id: 'foo:1' },
+        bar: { _id: 'bar:1', fooId: 'foo:2' },
+      };
+      const expectedQuery = {
+        $or: [
+          { fooId: 'foo:1' },
+          { fooId: 'foo:2' },
+        ],
+      };
+      expect(createQuery(props)).to.deep.equal(expectedQuery);
     });
   });
 

@@ -28,7 +28,7 @@ global.mockImport = (module, mocks = {}) => {
     const mockModules = Object.assign({}, globalMocks, mocks);
     const parsedMockModules = Object.keys(mockModules).reduce((reducedParsedMockModules, moduleMockPath) => {
       const globalPathMatch = moduleMockPath.match(globalRexExp);
-      const mockModule = Object.assign({}, mockModules[moduleMockPath], { '@global': true });
+      const mockModule = Object.assign(mockModules[moduleMockPath], { '@global': true });
       if (globalPathMatch) {
         const absolutePath = path.resolve(__dirname, '..', globalPathMatch[1]);
         return Object.assign({}, reducedParsedMockModules, { [absolutePath]: mockModule });
