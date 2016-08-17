@@ -1,4 +1,4 @@
-/* eslint-disable react/no-multi-comp */
+/* eslint-disable react/no-multi-comp, import/no-extraneous-dependencies */
 import { Tracker } from 'meteor/tracker';
 import { Meteor } from 'meteor/meteor';
 import { Observable } from 'rxjs/Observable';

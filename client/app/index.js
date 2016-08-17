@@ -1,6 +1,6 @@
 import React, { PropTypes } from 'react';
 import { connectComponent } from '~/util/rx-react';
-import { createState } from './state';
+import createState from './state';
 import './style';
 
 const TodosComponent = props => (
@@ -15,7 +15,7 @@ const TodosComponent = props => (
               <div
                 className="btn btn-danger btn-xs pull-right delete"
                 onClick={() => props.dispatch('deleteTodo', todo._id)}
-              >remove</div>
+              >DEL</div>
               <p className="list-group-item-text">{todo.text}</p>
             </div>
           ))}

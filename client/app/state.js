@@ -3,7 +3,7 @@ import { defineEvent } from '~/util/rx-react';
 import { todosConnection, addTodo, deleteTodo } from '~/meteor/todos';
 import 'rxjs';
 
-export const createState = (propsStream, actionsStream, listen) => {
+const createState = (propsStream, actionsStream, listen) => {
   const onAddTodo = defineEvent(actionsStream, 'addTodo');
   const onChangePost = defineEvent(actionsStream, 'changePost');
   const onDeleteTodo = defineEvent(actionsStream, 'deleteTodo');
@@ -29,3 +29,5 @@ export const createState = (propsStream, actionsStream, listen) => {
     .switchMap(deleteTodo);
   listen(deleteTodoResultStream.ignoreElements());
 };
+
+export default createState;

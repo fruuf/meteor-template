@@ -462,7 +462,7 @@ describe('util/relation', () => {
     it('accepts object as options', () => {
       BarCollection.find.reset();
       const createQuery = { fooId: 'foo:1' };
-      const createOptions = { sort: { createdAt: - 1 } };
+      const createOptions = { sort: { createdAt: -1 } };
       const props = {
         foo: { _id: 'foo:1' },
       };
@@ -474,7 +474,7 @@ describe('util/relation', () => {
         fooId: 'foo:1',
       };
       const expectedOptions = {
-        sort: { createdAt: - 1 },
+        sort: { createdAt: -1 },
         limit: 1, // added by findOne
       };
       const newProps = findOne('bar', BarCollection, createQuery, createOptions)(props);
@@ -485,7 +485,7 @@ describe('util/relation', () => {
     it('overwrites limit in options', () => {
       BarCollection.find.reset();
       const createQuery = { fooId: 'foo:1' };
-      const createOptions = { sort: { createdAt: - 1 }, limit: 10 };
+      const createOptions = { sort: { createdAt: -1 }, limit: 10 };
       const props = {
         foo: { _id: 'foo:1' },
       };
@@ -497,7 +497,7 @@ describe('util/relation', () => {
         fooId: 'foo:1',
       };
       const expectedOptions = {
-        sort: { createdAt: - 1 },
+        sort: { createdAt: -1 },
         limit: 1, // added by findOne
       };
       const newProps = findOne('bar', BarCollection, createQuery, createOptions)(props);
@@ -611,7 +611,7 @@ describe('util/relation', () => {
     it('accepts object as options', () => {
       BarCollection.find.reset();
       const createQuery = { fooId: 'foo:1' };
-      const createOptions = { sort: { createdAt: - 1 } };
+      const createOptions = { sort: { createdAt: -1 } };
       const props = {
         foo: { _id: 'foo:1' },
       };
@@ -623,7 +623,7 @@ describe('util/relation', () => {
         fooId: 'foo:1',
       };
       const expectedOptions = {
-        sort: { createdAt: - 1 },
+        sort: { createdAt: -1 },
       };
       const newProps = find('bar', BarCollection, createQuery, createOptions)(props);
       expect(newProps.bar).to.deep.equal(expectedProps.bar);
@@ -633,7 +633,7 @@ describe('util/relation', () => {
     it('allows limit in options', () => {
       BarCollection.find.reset();
       const createQuery = { fooId: 'foo:1' };
-      const createOptions = { sort: { createdAt: - 1 }, limit: 10 };
+      const createOptions = { sort: { createdAt: -1 }, limit: 10 };
       const props = {
         foo: { _id: 'foo:1' },
       };
@@ -645,7 +645,7 @@ describe('util/relation', () => {
         fooId: 'foo:1',
       };
       const expectedOptions = {
-        sort: { createdAt: - 1 },
+        sort: { createdAt: -1 },
         limit: 10,
       };
       const newProps = find('bar', BarCollection, createQuery, createOptions)(props);

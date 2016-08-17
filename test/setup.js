@@ -4,8 +4,8 @@ import path from 'path';
 import globalMocks from './mocks';
 
 const exposedProperties = ['window', 'navigator', 'document'];
-
-global.document = jsdom('');
+const document = jsdom('');
+global.document = document;
 global.window = document.defaultView;
 Object.keys(document.defaultView).forEach((property) => {
   if (typeof global[property] === 'undefined') {

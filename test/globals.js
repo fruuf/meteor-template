@@ -2,7 +2,7 @@ import { TestScheduler } from 'rxjs';
 import chai, { expect, assert } from 'chai';
 import { mount } from 'enzyme';
 import chaiEnzyme from 'chai-enzyme';
-import { afterEach } from 'mocha';
+import { beforeEach, afterEach } from 'mocha';
 import { createConnection, createMethod } from './mocks/rx-meteor';
 
 chai.use(chaiEnzyme());
@@ -20,4 +20,7 @@ global.flush = ts.flush.bind(ts);
 // to test observables we need to flush after every it (), and if we forget it we get a false positive
 afterEach(() => {
   ts.flush();
+});
+beforeEach(() => {
+  ts.frame = 0;
 });

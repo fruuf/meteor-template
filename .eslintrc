@@ -24,7 +24,9 @@
         // Extend max line length to 120 chars
         "max-len": ["error", { "code": 120 }],
         // Allow the meteor "_id" property
-        "no-underscore-dangle": ["error", { "allow": ["_id"] }]
+        "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+        // allow react in js files
+        "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }]
     },
     "globals": {
     }

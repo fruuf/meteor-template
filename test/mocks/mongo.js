@@ -16,6 +16,7 @@ class FakeCollection {
   update() {}
 }
 
+// eslint-disable-next-line import/prefer-default-export
 export const Mongo = {
   Collection: FakeCollection,
 };

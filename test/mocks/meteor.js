@@ -22,4 +22,5 @@ class FakeMeteor {
   }
 }
 
+// eslint-disable-next-line import/prefer-default-export
 export const Meteor = new FakeMeteor();
