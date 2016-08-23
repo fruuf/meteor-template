@@ -1,7 +1,8 @@
-import { createConnectionStream } from '~/util/rx-meteor';
-import { defineEvent } from '~/util/rx-react';
-import { todosConnection, addTodo, deleteTodo } from '~/meteor/todos';
 import 'rxjs';
+import { createConnectionStream } from '~/imports/util/rx-meteor';
+import { connectComponent, defineEvent } from '~/imports/util/rx-react';
+import { todosConnection, addTodo, deleteTodo } from './meteor';
+import AppComponent from './component';
 
 const createState = (propsStream, actionsStream, listen) => {
   const onAddTodo = defineEvent(actionsStream, 'addTodo');
@@ -30,4 +31,4 @@ const createState = (propsStream, actionsStream, listen) => {
   listen(deleteTodoResultStream.ignoreElements());
 };
 
-export default createState;
+export default connectComponent(AppComponent, createState);

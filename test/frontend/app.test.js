@@ -11,8 +11,8 @@ const todosConnection = createConnection(() => (
 const addTodo = createMethod(() => {});
 const deleteTodo = createMethod(() => {});
 
-const App = mockImportDefault('~/client/app', {
-  '~/meteor/todos': { todosConnection, addTodo, deleteTodo },
+const App = mockImportDefault('~/client/App', {
+  './meteor': { todosConnection, addTodo, deleteTodo },
 });
 
 describe('<App />', () => {
@@ -23,21 +23,7 @@ describe('<App />', () => {
   });
 
   it('renders items', () => {
-    expect(wrapper.find('.todo')).to.have.length(2);
-  });
-
-  it('is not logged in', () => {
-    expect(wrapper.find('.welcome-back')).to.have.length(0);
-  });
-
-  it('displays welcome message', () => {
-    todosConnection.update(() => ({
-      todos: [],
-      user: { name: 'test' },
-    }));
-    const welcomeBack = wrapper.find('.welcome-back');
-    expect(welcomeBack).to.be.present();
-    expect(welcomeBack).to.include.text('test');
+    expect(wrapper.find('.list .item')).to.have.length(2);
   });
 
   it('updates reactive', () => {
@@ -46,22 +32,22 @@ describe('<App />', () => {
         { _id: 'todo:1', name: 'foo' },
       ],
     }));
-    expect(wrapper.find('.todo')).to.have.length(1);
+    expect(wrapper.find('.list .item')).to.have.length(1);
   });
 
   it('has an input field', () => {
-    expect(wrapper.find('form .text')).to.be.present();
+    expect(wrapper.find('form input')).to.be.present();
   });
 
   it('updates post data', () => {
-    const textInput = wrapper.find('form .text');
+    const textInput = wrapper.find('form input');
     textInput.get(0).value = 'foo';
     textInput.simulate('change');
-    expect(wrapper.find('form .text').get(0).value).to.equal('foo');
+    expect(wrapper.find('form input').get(0).value).to.equal('foo');
   });
 
   it('has add todo button', () => {
-    expect(wrapper.find('form .add')).to.be.present();
+    expect(wrapper.find('.add')).to.be.present();
   });
 
   it('adds a todo', () => {
@@ -70,7 +56,7 @@ describe('<App />', () => {
   });
 
   it('resets post after add', () => {
-    expect(wrapper.find('form .text').get(0).value).to.equal('');
+    expect(wrapper.find('form input').get(0).value).to.equal('');
   });
 
   it('doesnt post when there is no message', () => {

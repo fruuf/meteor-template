@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { findOne } from '~/util/relation';
+import { findOne } from '~/imports/util/relation';
 // tracker mock
 const stop = sinon.stub();
 const autorun = sinon.spy(autorunCallback => {
@@ -31,7 +31,7 @@ const createFakeCollection = name => ({
 
 const {
   compose, createAutorunStream, createConnection, createConnectionStream, publishConnection, createMethod,
-} = mockImport('~/util/rx-meteor', {
+} = mockImport('~/imports/util/rx-meteor', {
   'meteor/tracker': { Tracker },
   'meteor/meteor': { Meteor },
 });

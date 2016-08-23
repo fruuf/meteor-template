@@ -1,5 +1,5 @@
 import React, { PropTypes } from 'react';
-import { connectComponent, defineEvent } from '~/util/rx-react';
+import { connectComponent, defineEvent } from '~/imports/util/rx-react';
 import { Observable } from 'rxjs';
 import sinon from 'sinon';
 

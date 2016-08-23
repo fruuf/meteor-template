@@ -7,7 +7,7 @@ const config = {
     './main',
   ],
   resolve: {
-    extensions: ['', '.js', '.json', '.less', '.css'],
+    extensions: ['', '.js', '.json', '.scss', '.css'],
   },
   module: {
     loaders: [
@@ -16,8 +16,8 @@ const config = {
         loader: 'babel',
         exclude: /node_modules/,
       }, {
-        test: /\.(less|css)$/,
-        loaders: ['style', 'css', 'less'],
+        test: /\.(scss|css)$/,
+        loaders: ['style', 'css', 'sass'],
       }, {
         test: /\.(jpg|png|woff|ttf|eot|woff2|svg)$/,
         loader: 'url?limit=25000',

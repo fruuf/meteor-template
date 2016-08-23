@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { find, findOne, combine, relation, merge, optionalRelation } from '~/util/relation';
+import { find, findOne, combine, relation, merge, optionalRelation } from '~/imports/util/relation';
 
 describe('util/relation', () => {
   describe('relation', () => {
