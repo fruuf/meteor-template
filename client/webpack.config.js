@@ -7,7 +7,7 @@ const config = {
     './main',
   ],
   resolve: {
-    extensions: ['', '.js', '.json', '.less'],
+    extensions: ['', '.js', '.json', '.less', '.css'],
   },
   module: {
     loaders: [
@@ -16,7 +16,7 @@ const config = {
         loader: 'babel',
         exclude: /node_modules/,
       }, {
-        test: /\.less$/,
+        test: /\.(less|css)$/,
         loaders: ['style', 'css', 'less'],
       }, {
         test: /\.(jpg|png|woff|ttf|eot|woff2|svg)$/,
