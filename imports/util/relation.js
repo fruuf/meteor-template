@@ -7,6 +7,20 @@ import intersection from 'lodash/intersection';
 import uniq from 'lodash/uniq';
 import flatten from 'lodash/flatten';
 
+const getCursor = (collection, props, query, options, findOne = false) => {
+  const cursor = collection.find(query, options);
+  // eslint-disable-next-line no-underscore-dangle
+  const name = collection._name;
+  // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+  if (!props._meta) props._meta = {};
+  const meta = { cursor, query, options, collection, findOne };
+  // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+  if (!props._meta[name]) props._meta[name] = [];
+  // eslint-disable-next-line no-underscore-dangle
+  props._meta[name].push(meta);
+  return cursor;
+};
+
 export const find = (key, collection, query, options = {}) => (props) => {
   let queryObject = query;
   let optionsObject = options;
@@ -15,13 +29,7 @@ export const find = (key, collection, query, options = {}) => (props) => {
   if (isFunction(query)) queryObject = query(props);
   if (isFunction(options)) optionsObject = options(props);
   if (isObject(queryObject) && isObject(optionsObject)) {
-    // eslint-disable-next-line
-    if (!props._cursors) props._cursors = {};
-    // eslint-disable-next-line
-    if (!props._cursors[collection._name]) props._cursors[collection._name] = [];
-    const cursor = collection.find(queryObject, optionsObject);
-    // eslint-disable-next-line
-    props._cursors[collection._name].push(cursor);
+    const cursor = getCursor(collection, props, queryObject, optionsObject, false);
     const documents = cursor.fetch();
     return Object.assign(props, { [key]: documents });
   }
@@ -37,13 +45,7 @@ export const findOne = (key, collection, query, options = {}) => (props) => {
   if (isFunction(options)) optionsObject = options(props);
   if (isObject(queryObject) && isObject(optionsObject)) {
     optionsObject.limit = 1;
-    // eslint-disable-next-line
-    if (!props._cursors) props._cursors = {};
-    // eslint-disable-next-line
-    if (!props._cursors[collection._name]) props._cursors[collection._name] = [];
-    const cursor = collection.find(queryObject, optionsObject);
-    // eslint-disable-next-line
-    props._cursors[collection._name].push(cursor);
+    const cursor = getCursor(collection, props, queryObject, optionsObject, true);
     const [doc] = cursor.fetch();
     return Object.assign(props, { [key]: doc || false });
   }

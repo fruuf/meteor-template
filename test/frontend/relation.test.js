@@ -560,14 +560,14 @@ describe('util/relation', () => {
       expect(BarCollection.find.called).to.equal(false);
     });
 
-    it('saves its cursors on the collection name', () => {
+    it('saves its metadata on the collection name', () => {
       const createQuery = { fooId: 'foo:1' };
       const props = {
         foo: { _id: 'foo:1' },
       };
       const newProps = findOne('bar', BarCollection, createQuery)(props);
       // eslint-disable-next-line no-underscore-dangle
-      expect(newProps._cursors.bar).to.have.length(1);
+      expect(newProps._meta.bar).to.have.length(1);
     });
   });
 
@@ -707,14 +707,14 @@ describe('util/relation', () => {
       expect(BarCollection.find.called).to.equal(false);
     });
 
-    it('saves its cursors on the collection name', () => {
+    it('saves its metadata on the collection name', () => {
       const createQuery = { fooId: 'foo:1' };
       const props = {
         foo: { _id: 'foo:1' },
       };
       const newProps = find('bar', BarCollection, createQuery)(props);
       // eslint-disable-next-line no-underscore-dangle
-      expect(newProps._cursors.bar).to.have.length(1);
+      expect(newProps._meta.bar).to.have.length(1);
     });
   });
 });

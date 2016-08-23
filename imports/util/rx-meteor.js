@@ -16,7 +16,10 @@ import zipObject from 'lodash/zipObject';
 import isObject from 'lodash/isObject';
 import isFunction from 'lodash/isFunction';
 import isArray from 'lodash/isArray';
+import isEqual from 'lodash/isEqual';
 import pick from 'lodash/pick';
+import uniq from 'lodash/uniq';
+import omit from 'lodash/omit';
 
 
 const shallowEqual = (objA, objB) =>
@@ -30,6 +33,65 @@ const pickStream = (stream, propsList) => (
   ? stream.map(props => pick(props, propsList)).distinctUntilChanged(shallowEqual)
   : stream
 );
+
+
+export const mergeQueries = collectionMeta => {
+  const queries = collectionMeta.map(meta => meta.query);
+  const queryParts = queries.reduce((compactQueries, currentQuery) => {
+    const currentKeys = Object.keys(currentQuery).sort();
+    let queryMatched = false;
+    const updatedCompactQueries = compactQueries.map(compactQuery => {
+      const compactKeys = Object.keys(compactQuery);
+      // dont merge if already merged
+      if (queryMatched) return compactQuery;
+      // dont merge if key length is different
+      if (currentKeys.length !== compactKeys.length) return compactQuery;
+      // dont merge if keys are not the same
+      if (currentKeys.some(key => compactQuery[key] === undefined)) return compactQuery;
+      // dont merge if more then one part is different
+      if (currentKeys.reduce((count, key) => (count + (currentQuery[key] !== compactQuery[key] ? 1 : 0)), 0) > 1) {
+        return compactQuery;
+      }
+      const mergeKey = currentKeys.find(key => currentQuery[key] !== compactQuery[key]);
+      const mergedValues = [currentQuery[mergeKey], compactQuery[mergeKey]].reduce((values, currentValue) => {
+        if (currentValue.$in && isArray(currentValue.$in)) return values.concat(currentValue.$in);
+        return values.concat([currentValue]);
+      }, []);
+      const normalisedMergedValues = uniq(mergedValues.sort());
+      queryMatched = true;
+      return Object.assign({}, compactQuery, { [mergeKey]: { $in: normalisedMergedValues } });
+    });
+    // we've matched it, doesnt need to be added
+    if (queryMatched) return updatedCompactQueries;
+    // add it to the compactQueries
+    return updatedCompactQueries.concat([currentQuery]);
+  }, []);
+  if (queryParts.length === 1) return queryParts[0];
+  return queryParts.reduce((query, part) => {
+    query.$or.push(part);
+    return query;
+  }, { $or: [] });
+};
+
+
+const mergeOptions = (collectionMeta) => collectionMeta.reduce((mergedOptions, meta, index) => {
+  if (meta.options.limit && !meta.findOne) throw new Error('queries with limit can\'t be merged');
+  const options = omit(meta.options, ['limit']);
+  if (!index) return options;
+  if (!isEqual(mergedOptions.sort, meta.options.sort)) throw new Error('cant merge sort');
+  return mergedOptions;
+}, {});
+
+
+const getCollectionCursor = collectionMeta => {
+  if (collectionMeta.length === 1) {
+    return collectionMeta[0].cursor;
+  }
+  const { collection } = collectionMeta[0];
+  const query = mergeQueries(collectionMeta);
+  const options = mergeOptions(collectionMeta);
+  return collection.find(query, options);
+};
 
 
 export const compose = (...parts) => (props) => {
@@ -65,7 +127,7 @@ export const createConnection = (name, paramsList, ...parts) => ({
   reducer: compose(
     ...parts,
     props => Object.keys(props).reduce((acc, cur) => (
-      cur === '_cursors' && !Meteor.isServer
+      cur === '_meta' && !Meteor.isServer
       ? acc
       : Object.assign(acc, { [cur]: props[cur] || undefined })
     ), {})
@@ -98,13 +160,11 @@ export const publishConnection = (connection) => {
     });
     const connectedProps = connection.reducer(props);
     //eslint-disable-next-line
-    const cursors = Object.keys(connectedProps._cursors || {}).map(collectionName => {
+    const cursors = Object.keys(connectedProps._meta || {}).map(collectionName => {
       //eslint-disable-next-line
-      const collectionCursors = connectedProps._cursors[collectionName];
-      return collectionCursors[collectionCursors.length - 1];
+      const collectionMeta = connectedProps._meta[collectionName];
+      return getCollectionCursor(collectionMeta);
     });
-    //eslint-disable-next-line
-    //console.log(`publish '${connection.name}' with ${cursors.length} cursors (${Object.keys(connectedProps._cursors || {})})`);
     return cursors;
   });
 };

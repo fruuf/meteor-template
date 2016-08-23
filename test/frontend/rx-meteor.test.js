@@ -30,7 +30,7 @@ const createFakeCollection = name => ({
 });
 
 const {
-  compose, createAutorunStream, createConnection, createConnectionStream, publishConnection, createMethod,
+  compose, createAutorunStream, createConnection, createConnectionStream, publishConnection, createMethod, mergeQueries,
 } = mockImport('~/imports/util/rx-meteor', {
   'meteor/tracker': { Tracker },
   'meteor/meteor': { Meteor },
@@ -476,6 +476,141 @@ describe('util/rx-meteor', () => {
       expect(Meteor.methods.calledOnce).to.equal(true);
       const method = Meteor.methods.getCall(0).args[0]['test-method'];
       expect(method('a')).to.equal('abc');
+    });
+  });
+
+  describe('mergeQueries', () => {
+    const wrapQueries = queries => queries.map(query => ({ query }));
+
+    it('is a function', () => {
+      expect(mergeQueries).to.be.a('function');
+    });
+
+    it('returns the original query on one', () => {
+      const query = {
+        _id: 'foo:1',
+      };
+      const resultQuery = mergeQueries(wrapQueries([query]));
+      expect(resultQuery).to.deep.equal(query);
+    });
+
+    it('merges identifiers', () => {
+      const firstQuery = {
+        _id: 'foo:1',
+      };
+      const secondQuery = {
+        _id: 'foo:2',
+      };
+      const expectedQuery = {
+        _id: {
+          $in: ['foo:1', 'foo:2'],
+        },
+      };
+      const resultQuery = mergeQueries(wrapQueries([firstQuery, secondQuery]));
+      expect(resultQuery).to.deep.equal(expectedQuery);
+    });
+
+    it('merges identifiers and lists', () => {
+      const firstQuery = {
+        _id: 'foo:1',
+      };
+      const secondQuery = {
+        _id: {
+          $in: ['foo:2', 'foo:3'],
+        },
+      };
+      const expectedQuery = {
+        _id: {
+          $in: ['foo:1', 'foo:2', 'foo:3'],
+        },
+      };
+      const resultQuery = mergeQueries(wrapQueries([firstQuery, secondQuery]));
+      expect(resultQuery).to.deep.equal(expectedQuery);
+    });
+
+    it('sorts list items', () => {
+      const firstQuery = {
+        _id: 'foo:2',
+      };
+      const secondQuery = {
+        _id: {
+          $in: ['foo:1', 'foo:3'],
+        },
+      };
+      const expectedQuery = {
+        _id: {
+          $in: ['foo:1', 'foo:2', 'foo:3'],
+        },
+      };
+      const resultQuery = mergeQueries(wrapQueries([firstQuery, secondQuery]));
+      expect(resultQuery).to.deep.equal(expectedQuery);
+    });
+
+    it('accepts queries with two attributes', () => {
+      const firstQuery = {
+        _id: 'foo:1',
+        active: true,
+      };
+      const secondQuery = {
+        _id: 'foo:2',
+        active: true,
+      };
+      const expectedQuery = {
+        _id: {
+          $in: ['foo:1', 'foo:2'],
+        },
+        active: true,
+      };
+      const resultQuery = mergeQueries(wrapQueries([firstQuery, secondQuery]));
+      expect(resultQuery).to.deep.equal(expectedQuery);
+    });
+
+    it('falls back to $or on different attributes', () => {
+      const firstQuery = {
+        _id: 'foo:1',
+        active: true,
+      };
+      const secondQuery = {
+        _id: 'foo:2',
+        active: false,
+      };
+      const expectedQuery = {
+        $or: [
+          {
+            _id: 'foo:1',
+            active: true,
+          },
+          {
+            _id: 'foo:2',
+            active: false,
+          },
+        ],
+      };
+      const resultQuery = mergeQueries(wrapQueries([firstQuery, secondQuery]));
+      expect(resultQuery).to.deep.equal(expectedQuery);
+    });
+
+    it('falls back to $or on different attribute keys', () => {
+      const firstQuery = {
+        _id: 'foo:1',
+        active: true,
+      };
+      const secondQuery = {
+        _id: 'foo:2',
+      };
+      const expectedQuery = {
+        $or: [
+          {
+            _id: 'foo:1',
+            active: true,
+          },
+          {
+            _id: 'foo:2',
+          },
+        ],
+      };
+      const resultQuery = mergeQueries(wrapQueries([firstQuery, secondQuery]));
+      expect(resultQuery).to.deep.equal(expectedQuery);
     });
   });
 });
